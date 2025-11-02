@@ -1,0 +1,14 @@
+---
+- name: Homelab Incus
+  hosts: incus
+  roles:
+    - role: common
+      tags: common
+    - role: artis3n.tailscale.machine
+      vars:
+        tailscale_authkey: "{{ vault_tailscale_authkey }}"
+        tailscale_tags:
+          - "incus"
+          - "homelab"
+    - role: incus
+      tags: incus

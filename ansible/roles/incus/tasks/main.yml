@@ -1,0 +1,65 @@
+#SPDX-License-Identifier: MIT-0
+---
+# tasks file for incus
+- name: Gather facts
+  ansible.builtin.setup:
+  tags: always
+
+- name: Add incus repo
+  deb822_repository:
+    name: incus-stable
+    types: deb
+    uris: https://pkgs.zabbly.com/incus/stable
+    suites: '{{ ansible_distribution_release }}'
+    components: main
+    architectures: '{{ ansible_architecture }}'
+    signed_by: https://pkgs.zabbly.com/key.asc
+
+- name: Install incus
+  ansible.builtin.apt:
+    name: incus
+    update_cache: yes
+    state: present
+
+- name: Add current user to incus-admin group
+  ansible.builtin.user:
+    name: "{{ ansible_user_id }}"
+    groups:
+      - incus-admin
+    append: yes
+    state: present
+
+- name: Add other users to incus-admin
+  user:
+    name: "{{ item.key }}"
+    groups:
+      - incus-admin
+    append: yes
+    state: present
+  with_dict: "{{ users }}"
+
+- name: Reload user groups
+  ansible.builtin.meta: reset_connection
+
+- name: Start incus service
+  ansible.builtin.systemd:
+    name: incus.service
+    state: started
+    enabled: yes
+
+- name: Expose incus core
+  ansible.builtin.shell: "incus config set core.https_address :8443"
+
+- name: Get all incus trust tokens
+  ansible.builtin.shell: "incus config trust list"
+  register: incus_trust_output
+
+- name: Create incus remote token
+  ansible.builtin.shell: "incus config trust add terraform"
+  register: command_output
+  when: "'terraform' not in incus_trust_output.stdout"
+
+- name: Print incus remote token
+  ansible.builtin.debug:
+    var: command_output.stdout_lines
+  when: "'terraform' not in incus_trust_output.stdout"

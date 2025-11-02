@@ -1,0 +1,5 @@
+users:
+    heplaphon:
+        name: "heplaphon"
+        ssh_key: heplaphon.pub
+

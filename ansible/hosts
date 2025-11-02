@@ -1,0 +1,2 @@
+[incus]
+ bifur ansible_host=192.168.50.40 ansible_user=ansible_deploy ansible_become=true
