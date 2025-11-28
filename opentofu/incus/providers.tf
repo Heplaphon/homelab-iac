@@ -5,7 +5,7 @@ provider "incus" {
 
   remote {
     name    = "bifur"
-    address = "https://192.168.50.40:8443"
+    address = "https://192.168.50.39:8443"
     token   = var.incus_token
   }
 }
