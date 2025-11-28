@@ -12,14 +12,24 @@
     uris: https://pkgs.zabbly.com/incus/stable
     suites: '{{ ansible_distribution_release }}'
     components: main
-    architectures: '{{ ansible_architecture }}'
+    architectures: "{{ 'amd64' if ansible_architecture == 'x86_64' else 'arm64' }}"
     signed_by: https://pkgs.zabbly.com/key.asc
+
+#- name: Add incus daily repo
+#  deb822_repository:
+#    name: incus-daily
+#    types: deb
+#    uris: https://pkgs.zabbly.com/incus/daily
+#    suites: '{{ ansible_distribution_release }}'
+#    components: main
+#    architectures: "{{ 'amd64' if ansible_architecture == 'x86_64' else 'arm64' }}"
+#    signed_by: https://pkgs.zabbly.com/key.asc
 
 - name: Install incus
   ansible.builtin.apt:
     name: incus
     update_cache: yes
-    state: present
+    state: latest
 
 - name: Add current user to incus-admin group
   ansible.builtin.user:
